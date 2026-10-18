@@ -148,12 +148,16 @@ const getUnrotatedLocalPcbElements = ({
     componentLayer: pcbComponent.layer,
     originalLayer: component._getFootprintOriginalLayer(),
   })
+  // Inverts the placement from PrimitiveComponent._computePcbGlobalTransformBeforeLayout,
+  // compose(parentTransform, flipY(), propsTransform): flipped footprints are
+  // mirrored in X (flipY() negates X) before the component rotation, so undo
+  // the rotation first and then the mirror.
   const toLocalPoint = (point: { x: number; y: number }) => {
     const x = point.x - pcbComponent.center.x
-    const placedY = point.y - pcbComponent.center.y
-    const y = isFlipped ? -placedY : placedY
+    const y = point.y - pcbComponent.center.y
+    const unrotatedX = x * cos - y * sin
     return {
-      x: x * cos - y * sin,
+      x: isFlipped ? -unrotatedX : unrotatedX,
       y: x * sin + y * cos,
     }
   }

@@ -27,7 +27,7 @@ const soic8Placements = [
   { name: "U5", layer: "bottom", pcbRotation: 270, pcbX: 24 },
 ] as const
 
-test("repro: bottom-layer parts report the wrong pin 1 location at 0 and 180 degrees", async () => {
+test("repro: bottom-layer parts keep the footprint pin 1 location at every rotation", async () => {
   const partsEngine = await getMatchingSoic8PartsEngine()
   const { circuit } = getTestFixture()
   const board = new Board({
@@ -71,15 +71,13 @@ test("repro: bottom-layer parts report the wrong pin 1 location at 0 and 180 deg
 
   // The SOIC-8 footprint is identical to the supplier footprint, so every
   // part should keep leftside_top and need no supplier rotation adjustment.
-  // Bottom-layer parts at 0 and 180 degrees currently report rightside_bottom,
-  // which turns into a 180 degree JLCPCB pick-and-place correction.
   expect(
     soic8Placements.map(({ name }) => pcbComponentByName[name]!.pin1_location),
   ).toEqual([
     "leftside_top",
-    "rightside_bottom",
     "leftside_top",
-    "rightside_bottom",
+    "leftside_top",
+    "leftside_top",
     "leftside_top",
   ])
 
